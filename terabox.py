@@ -43,14 +43,14 @@ bot_token = os.environ.get('BOT_TOKEN', '7971343421:AAEatwpyW7Pmfz64DoOv4jE1dL-y
 if not bot_token:
     logging.error("BOT_TOKEN variable is missing! Exiting now")
     exit(1)
-dump_id = os.environ.get('DUMP_CHAT_ID', '-1002345949358')
+dump_id = os.environ.get('DUMP_CHAT_ID', '-1002452266669')
 if not dump_id:
     logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
     exit(1)
 else:
     dump_id = int(dump_id)
 
-fsub_id = os.environ.get('FSUB_ID', '-1002345949358')
+fsub_id = os.environ.get('FSUB_ID', '-1001947593874')
 if not fsub_id:
     logging.error("FSUB_ID variable is missing! Exiting now")
     exit(1)
@@ -60,7 +60,7 @@ else:
 
 mongo_url = os.environ.get('MONGO_URL', 'mongodb+srv://opabhikji:opabhikji@cluster0.ec9rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0 mongodb+srv://opabhik:opabhik@cluster0.1wb04ib.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 client = MongoClient(mongo_url)
-db = client['cphdlust']
+db = clie']
 users_collection = db['users']
 
 
@@ -162,7 +162,7 @@ async def start_command(client, message):
             return await message.reply("Your token is invalid or expired. Try again by clicking /start.")
         await db_update_verify_status(user_id, {**verify_status, 'is_verified': True, 'verified_time': time.time()})
         logging.info(f"User {user_id} verified successfully")
-        return await message.reply("Your token has been successfully verified and is valid for 12 hours.")
+        return await message.reply("Your token has been successfully verified and is valid for 24 hours.")
 
     if verify_status["is_verified"]:
         logging.info(f"User {user_id} is verified")
@@ -170,8 +170,8 @@ async def start_command(client, message):
             f"Welcome, {user_mention}.\n\n"
             "🌟 I am a terabox downloader bot. Send me any terabox link and I will download it within a few seconds and send it to you ✨."
         )
-        join_button = InlineKeyboardButton("Join ❤️🚀", url="https://t.me/ultroid_official")
-        developer_button = InlineKeyboardButton("Developer ⚡️", url="https://t.me/ultroidxTeam")
+        join_button = InlineKeyboardButton("Join ❤️", url="https://t.me/+mAgf1IcMqgYwY2I1")
+        developer_button = InlineKeyboardButton("Developer ⚡️", url="https://t.me/+ZnP1VQFy-CFmZWQ1")
         reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
         await message.reply_text(reply_message, reply_markup=reply_markup)
     else:
@@ -179,16 +179,16 @@ async def start_command(client, message):
         if IS_VERIFY:
             token = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
             logging.info(f"Generated token: {token}")
-            link = await get_shortlink(SHORTLINK_URL, SHORTLINK_API, f'https://t.me/demo12g_bot?start=verify_{token}')
+            link = await get_shortlink(SHORTLINK_URL, SHORTLINK_API, f'https://t.me/TeraboxVideosRoBot?start=verify_{token}')
             await db_update_verify_status(user_id, {**verify_status, 'verify_token': token, 'link': link})
             message_text = (
                 "Your ads token has expired. Please refresh your token and try again.\n\n"
                 f"Token Timeout: {get_exp_time(VERIFY_EXPIRE)}\n\n"
                 "What is the token?\n\n"
-                "This is an ads token. If you pass 1 ad, you can use the bot for 12 hours after passing the ad.\n\n"
+                "This is an ads token. If you pass 1 ad, you can use the bot for 24 hours after passing the ad.\n\n"
             )
             token_button = InlineKeyboardButton("Get Token", url=link)
-            tutorial_button = InlineKeyboardButton("How to Verify", url="https://t.me/ultroid_official/18")
+            tutorial_button = InlineKeyboardButton("How to Verify", url="https://t.me/ChipsTutorial/7")
             reply_markup = InlineKeyboardMarkup([[token_button], [tutorial_button]])
             await message.reply_text(message_text, reply_markup=reply_markup)
         else:
@@ -316,7 +316,7 @@ async def handle_message(client, message):
     is_member = await is_user_member(client, user_id)
 
     if not is_member:
-        join_button = InlineKeyboardButton("Join ❤️🚀", url="https://t.me/logchannelfuyfth")
+        join_button = InlineKeyboardButton("Join ❤️", url="https://t.me/+mAgf1IcMqgYwY2I1")
         reply_markup = InlineKeyboardMarkup([[join_button]])
         await message.reply_text("You must join my channel to use me.", reply_markup=reply_markup)
         return
