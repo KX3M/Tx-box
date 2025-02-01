@@ -20,9 +20,9 @@ async def download_video(url, reply_msg, user_mention, user_id):
     data = response.json()
 
     resolutions = data["response"][0]["resolutions"]
-    fast_download_link = resolutions["Fast Download"]
+    fast_download_link = resolutions["downloadLink"]
     thumbnail_url = data["response"][0]["thumbnail"]
-    video_title = data["response"][0]["title"]
+    video_title = data["response"][0]["filename"]
 
     download = aria2.add_uris([fast_download_link])
     start_time = datetime.now()
