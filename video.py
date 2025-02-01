@@ -15,7 +15,7 @@ aria2 = aria2p.API(
     )
 )
 async def download_video(url, reply_msg, user_mention, user_id):
-    response = requests.get(f"https://terabox.udayscriptsx.workers.dev/?url={url}")
+    response = requests.get(f"https://pika-terabox-dl.vercel.app/?url={url}")
     response.raise_for_status()
     data = response.json()
 
