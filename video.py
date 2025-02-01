@@ -3,14 +3,12 @@ import aria2p
 from datetime import datetime
 from status import format_progress_bar
 import asyncio
-import os
-import time
+import os, time
 import logging
 
-# Set up the aria2p client
 aria2 = aria2p.API(
     aria2p.Client(
-        host="http://localhost",  # Ensure this is correct
+        host="http://localhost",
         port=6800,
         secret=""
     )
@@ -18,23 +16,18 @@ aria2 = aria2p.API(
 
 async def download_video(url, reply_msg, user_mention, user_id):
     try:
-        # Send request to the API
         response = requests.get(f"https://pika-terabox-dl.vercel.app/?url={url}")
-        response.raise_for_status()  # Raise error if the response is not successful
+        response.raise_for_status()  # Will raise an error if the response is not successful
         
         data = response.json()
 
-        # Check if downloadlink is present in the response
         if "downloadLink" not in data["response"][0]:
             raise Exception("Download link not found in API response")
         
-        # Extract download details
         resolutions = data["response"][0]["resolutions"]
         fast_download_link = resolutions["downloadLink"]
-        thumbnail_url = data["response"][0]["thumbnail"]
         video_title = data["response"][0]["filename"]
         
-        # Start the download using aria2
         download = aria2.add_uris([fast_download_link])
         start_time = datetime.now()
 
@@ -47,7 +40,6 @@ async def download_video(url, reply_msg, user_mention, user_id):
             eta = download.eta
             elapsed_time_seconds = (datetime.now() - start_time).total_seconds()
 
-            # Update progress text
             progress_text = format_progress_bar(
                 filename=video_title,
                 percentage=percentage,
@@ -64,34 +56,28 @@ async def download_video(url, reply_msg, user_mention, user_id):
             await reply_msg.edit_text(progress_text)
             await asyncio.sleep(2)
 
-        # When download is complete
         if download.is_complete:
             file_path = download.files[0].path
-
-            # Download and save the thumbnail
-            thumbnail_path = "thumbnail.jpg"
-            try:
-                thumbnail_response = requests.get(thumbnail_url)
-                with open(thumbnail_path, "wb") as thumb_file:
-                    thumb_file.write(thumbnail_response.content)
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Failed to download thumbnail: {e}")
-                thumbnail_path = None  # Use a default thumbnail if needed
-
             await reply_msg.edit_text("ᴜᴘʟᴏᴀᴅɪɴɢ...")
-            return file_path, thumbnail_path, video_title
+            return file_path, video_title
         else:
             raise Exception("Download failed")
     
     except Exception as e:
         logging.error(f"Error in download_video: {e}")
-        await reply_msg.edit_text(f"Error: {e}")
-        return None, None, None
+        # Only show a generic error message to the user
+        await reply_msg.edit_text("Something went wrong while downloading the video. Please try again later.")
+        return None, None
 
 
-async def upload_video(client, file_path, thumbnail_path, video_title, reply_msg, collection_channel_id, user_mention, user_id, message):
+async def upload_video(client, file_path, video_title, reply_msg, collection_channel_id, user_mention, user_id, message):
+    if not file_path:
+        logging.error("File path is None. Upload skipped.")
+        # Notify user that download failed but no technical details
+        await reply_msg.edit_text("Error: Video download failed. Please try again later.")
+        return None
+
     try:
-        # Get file size and prepare for upload
         file_size = os.path.getsize(file_path)
         uploaded = 0
         start_time = datetime.now()
@@ -123,13 +109,11 @@ async def upload_video(client, file_path, thumbnail_path, video_title, reply_msg
                 except Exception as e:
                     logging.warning(f"Error updating progress message: {e}")
 
-        # Upload video to the collection channel
         with open(file_path, 'rb') as file:
             collection_message = await client.send_video(
                 chat_id=collection_channel_id,
                 video=file,
                 caption=f"✨ {video_title}\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 ᴜsᴇʀ ʟɪɴᴋ: tg://user?id={user_id}",
-                thumb=thumbnail_path,
                 progress=progress
             )
             await client.copy_message(
@@ -143,14 +127,13 @@ async def upload_video(client, file_path, thumbnail_path, video_title, reply_msg
 
         await reply_msg.delete()
 
-        # Clean up the files
         os.remove(file_path)
-        os.remove(thumbnail_path)
 
         return collection_message.id
 
     except Exception as e:
         logging.error(f"Error in upload_video: {e}")
-        await reply_msg.edit_text(f"Error: {e}")
+        # Show generic error message to user
+        await reply_msg.edit_text("Something went wrong while uploading the video. Please try again later.")
         return None
-                
+                    
