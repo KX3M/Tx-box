@@ -60,7 +60,7 @@ else:
 
 mongo_url = os.environ.get('MONGO_URL', 'mongodb+srv://hegodal811:rsRu17pspZAcp6V7@cluster0.prsvqax.mongodb.net/?retryWrites=true&w=majority')
 client = MongoClient(mongo_url)
-db = client['cphdlust']
+db = client['hamza']
 users_collection = db['users']
 
 
@@ -168,7 +168,7 @@ async def start_command(client, message):
         logging.info(f"User {user_id} is verified")
         reply_message = (
             f"Welcome, {user_mention}.\n\n"
-            "🌟 I am a terabox downloader bot. Send me any terabox link and I will download it within a few seconds and send it to you ✨."
+            "🌟 I am a terabox downloader bot. Send me any terabox link and I will download it within a few seconds and send it to you ✨.\n\n🤖 By : @PythonBotz"
         )
         join_button = InlineKeyboardButton("Join ❤️", url="https://t.me/+mAgf1IcMqgYwY2I1")
         developer_button = InlineKeyboardButton("Developer ⚡️", url="https://t.me/faony")
@@ -182,13 +182,15 @@ async def start_command(client, message):
             link = await get_shortlink(SHORTLINK_URL, SHORTLINK_API, f'https://t.me/TeraboxVideosRoBot?start=verify_{token}')
             await db_update_verify_status(user_id, {**verify_status, 'verify_token': token, 'link': link})
             message_text = (
+                f"Hey, {user_mention}.\n\n"
                 "Your ads token has expired. Please refresh your token and try again.\n\n"
                 f"Token Timeout: {get_exp_time(VERIFY_EXPIRE)}\n\n"
                 "What is the token?\n\n"
+                "Token Details: 24 hours of unlimited link usage.\n\n"
                 "This is an ads token. If you pass 1 ad, you can use the bot for 24 hours after passing the ad.\n\n"
             )
-            token_button = InlineKeyboardButton("Get Token", url=link)
-            tutorial_button = InlineKeyboardButton("How to Verify", url="https://t.me/ChipsTutorial/7")
+            token_button = InlineKeyboardButton("🔄 Refresh Token 🔄", url=link)
+            tutorial_button = InlineKeyboardButton("📺 Watch Tutorial 📺", url="https://t.me/ChipsTutorial/7")
             reply_markup = InlineKeyboardMarkup([[token_button], [tutorial_button]])
             await message.reply_text(message_text, reply_markup=reply_markup)
         else:
