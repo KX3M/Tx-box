@@ -2,7 +2,7 @@ import requests
 import aria2p
 from datetime import datetime
 import asyncio
-import os, time
+import os
 import logging
 
 aria2 = aria2p.API(
@@ -34,25 +34,24 @@ async def download_video(url, reply_msg, user_mention, user_id):
             percentage = download.progress
             done = download.completed_length
             total_size = download.total_length
-            speed = download.download_speed / (1024 * 1024)  # Convert to MB/s
+            speed = download.download_speed
             eta = download.eta
+            elapsed_time_seconds = (datetime.now() - start_time).total_seconds()
 
             progress_text = (
                 f"📥 **Downloading...**\n"
                 f"🎬 {video_title}\n"
                 f"📊 **Progress:** {percentage:.2f}%\n"
                 f"📂 **Size:** {done / (1024 * 1024):.2f}MB / {total_size / (1024 * 1024):.2f}MB\n"
-                f"🚀 **Speed:** {speed:.2f} MB/s | ⏳ **ETA:** {eta}s"
+                f"🚀 **Speed:** {speed / (1024 * 1024):.2f} MB/s | ⏳ **ETA:** {eta}s"
             )
-
             await reply_msg.edit_text(progress_text)
             await asyncio.sleep(2)
 
         if download.is_complete:
             file_path = download.files[0].path
             await reply_msg.edit_text("✅ **Download Complete! Uploading...**")
-            return file_path, video_title  
-
+            return file_path, video_title  # Returning file_path and video_title
         else:
             raise Exception("Download failed")
 
@@ -73,18 +72,14 @@ async def upload_video(client, file_path, video_title, reply_msg, collection_cha
             uploaded = current
             percentage = (current / total) * 100
             elapsed_time_seconds = (datetime.now() - start_time).total_seconds()
-            speed = (uploaded / elapsed_time_seconds) / (1024 * 1024)  # Convert to MB/s
-            eta = int((total - uploaded) / (uploaded / elapsed_time_seconds)) if uploaded > 0 else 0
 
             if time.time() - last_update_time > 2:
                 progress_text = (
                     f"🚀 **Uploading...**\n"
                     f"🎬 {video_title}\n"
-                    f"📊 **Progress:** {percentage:.2f}%\n"
-                    f"📂 **Size:** {uploaded / (1024 * 1024):.2f}MB / {total / (1024 * 1024):.2f}MB\n"
-                    f"🔄 **Speed:** {speed:.2f} MB/s | ⏳ **ETA:** {eta}s"
+                    f"📂 **Uploaded:** {uploaded / (1024 * 1024):.2f}MB / {total / (1024 * 1024):.2f}MB\n"
+                    f"🚀 **Speed:** {uploaded / (1024 * 1024) / elapsed_time_seconds:.2f} MB/s | ⏳ **ETA:** {int((total - uploaded) / (uploaded / elapsed_time_seconds))}s"
                 )
-
                 try:
                     await reply_msg.edit_text(progress_text)
                     last_update_time = time.time()
@@ -117,4 +112,4 @@ async def upload_video(client, file_path, video_title, reply_msg, collection_cha
         logging.error(f"Error in upload_video: {e}")
         await reply_msg.edit_text("⚠️ Error uploading the video. Please try again later.")
         return None
-        
+            
