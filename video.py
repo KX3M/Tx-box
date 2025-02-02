@@ -3,6 +3,7 @@ import aria2p
 from datetime import datetime
 import asyncio
 import os
+import time
 import logging
 
 aria2 = aria2p.API(
