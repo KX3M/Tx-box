@@ -91,7 +91,7 @@ async def upload_video(client, file_path, video_title, reply_msg, collection_cha
             collection_message = await client.send_video(
                 chat_id=collection_channel_id,
                 video=file,
-                caption=f"✨ {video_title}\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 ᴜsᴇʀ ʟɪɴᴋ: tg://user?id={user_id}",
+                caption=f"✨ {video_title}\n👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : {user_mention}\n📥 ᴜsᴇʀ ʟɪɴᴋ: [{user_mention}](tg://user?id={user_id})\n\nJoin : @PythonBotz",
                 progress=progress
             )
 
