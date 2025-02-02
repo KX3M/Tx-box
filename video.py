@@ -2,7 +2,7 @@ import requests
 import aria2p
 from datetime import datetime
 import asyncio
-import os
+import os, time
 import logging
 
 aria2 = aria2p.API(
@@ -15,23 +15,17 @@ aria2 = aria2p.API(
 
 async def download_video(url, reply_msg, user_mention, user_id):
     try:
-        # Get video download link from API
         response = requests.get(f"https://pika-terabox-dl.vercel.app/?url={url}")
         response.raise_for_status()
-
         data = response.json()
 
         # Validate API response
-        if not data.get("ok"):
-            raise Exception("API response indicates failure")
-
-        if "downloadLink" not in data or "filename" not in data:
-            raise Exception("Invalid API response format: Missing 'downloadLink' or 'filename'")
+        if not data.get("ok") or "downloadLink" not in data or "filename" not in data:
+            raise Exception("Invalid API response format")
 
         fast_download_link = data["downloadLink"]
         video_title = data["filename"]
 
-        # Start download
         download = aria2.add_uris([fast_download_link])
         start_time = datetime.now()
 
@@ -40,18 +34,25 @@ async def download_video(url, reply_msg, user_mention, user_id):
             percentage = download.progress
             done = download.completed_length
             total_size = download.total_length
-            speed = download.download_speed
+            speed = download.download_speed / (1024 * 1024)  # Convert to MB/s
             eta = download.eta
-            elapsed_time_seconds = (datetime.now() - start_time).total_seconds()
 
-            progress_text = f"📥 **Downloading...**\n🎬 {video_title}\n🗂 **{done}/{total_size}**\n🚀 Speed: {speed} | ⏳ ETA: {eta}"
+            progress_text = (
+                f"📥 **Downloading...**\n"
+                f"🎬 {video_title}\n"
+                f"📊 **Progress:** {percentage:.2f}%\n"
+                f"📂 **Size:** {done / (1024 * 1024):.2f}MB / {total_size / (1024 * 1024):.2f}MB\n"
+                f"🚀 **Speed:** {speed:.2f} MB/s | ⏳ **ETA:** {eta}s"
+            )
+
             await reply_msg.edit_text(progress_text)
             await asyncio.sleep(2)
 
         if download.is_complete:
             file_path = download.files[0].path
             await reply_msg.edit_text("✅ **Download Complete! Uploading...**")
-            return file_path, video_title  # Return file path and title for upload function
+            return file_path, video_title  
+
         else:
             raise Exception("Download failed")
 
@@ -59,7 +60,6 @@ async def download_video(url, reply_msg, user_mention, user_id):
         logging.error(f"Error in download_video: {e}")
         await reply_msg.edit_text("⚠️ Error downloading the video. Please try again later.")
         return None, None
-
 
 async def upload_video(client, file_path, video_title, reply_msg, collection_channel_id, user_mention, user_id, message):
     try:
@@ -73,9 +73,18 @@ async def upload_video(client, file_path, video_title, reply_msg, collection_cha
             uploaded = current
             percentage = (current / total) * 100
             elapsed_time_seconds = (datetime.now() - start_time).total_seconds()
+            speed = (uploaded / elapsed_time_seconds) / (1024 * 1024)  # Convert to MB/s
+            eta = int((total - uploaded) / (uploaded / elapsed_time_seconds)) if uploaded > 0 else 0
 
             if time.time() - last_update_time > 2:
-                progress_text = f"🚀 **Uploading...**\n🎬 {video_title}\n🗂 **{uploaded}/{total}**\n⏳ ETA: {int((total - uploaded) / (uploaded / elapsed_time_seconds))}s"
+                progress_text = (
+                    f"🚀 **Uploading...**\n"
+                    f"🎬 {video_title}\n"
+                    f"📊 **Progress:** {percentage:.2f}%\n"
+                    f"📂 **Size:** {uploaded / (1024 * 1024):.2f}MB / {total / (1024 * 1024):.2f}MB\n"
+                    f"🔄 **Speed:** {speed:.2f} MB/s | ⏳ **ETA:** {eta}s"
+                )
+
                 try:
                     await reply_msg.edit_text(progress_text)
                     last_update_time = time.time()
