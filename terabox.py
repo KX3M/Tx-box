@@ -58,9 +58,9 @@ else:
     fsub_id = int(fsub_id)
 
 
-mongo_url = os.environ.get('MONGO_URL', 'mongodb+srv://b.net/?retryWrites=true&w=majority')
+mongo_url = os.environ.get('MONGO_URL', 'mongodb+srv://opabhikji:opabhikji@cluster0.ec9rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
 client = MongoClient(mongo_url)
-db = client['🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡']
+db = client['cphdlust']
 users_collection = db['users']
 
 
@@ -171,7 +171,7 @@ async def start_command(client, message):
             "🌟 I am a terabox downloader bot. Send me any terabox link and I will download it within a few seconds and send it to you ✨.\n\n🤖 By : @PythonBotz"
         )
         join_button = InlineKeyboardButton("Join ❤️", url="https://t.me/+mAgf1IcMqgYwY2I1")
-        developer_button = InlineKeyboardButton("Developer ⚡️", url="https://t.me/faony")
+        developer_button = InlineKeyboardButton("Developer ⚡️", url="https://t.me/Peldiya")
         reply_markup = InlineKeyboardMarkup([[join_button, developer_button]])
         await message.reply_text(reply_message, reply_markup=reply_markup)
     else:
