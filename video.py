@@ -17,18 +17,18 @@ aria2 = aria2p.API(
 
 async def download_video(url, reply_msg, user_mention, user_id):
     # Fetch API data
-    response = requests.get(f"https://terabox.pikaapis.workers.dev/?url={url}")
+    response = requests.get(f"https://tb-b8qi.onrender.com/?url={url}")
     response.raise_for_status()
     data = response.json()
 
     if not data:
         raise Exception("API response is empty or invalid.")
 
-    video_file_name = data.get("file_name")
+    video_file_name = data.get("name")
     fast_download_link = data.get("direct_link")
-    thumbnail_url = data.get("thumb")
+    thumbnail_url = data.get("tumbanail")
     video_size = data.get("size", "Unknown")
-    video_size_bytes = data.get("sizebytes", 0)
+    video_size_bytes = data.get("bytes", 0)
 
     if not fast_download_link:
         raise Exception("Fast download link is missing in the API response.")
